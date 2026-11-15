@@ -1,20 +1,30 @@
-# FoodExpress — база данных
+# База данных FoodExpress
 
-Добро пожаловать в проект. Твоя задача — спроектировать и реализовать базу данных для сервиса доставки еды.
+Работа Конова. Схема `konov_food`, проверено на PostgreSQL 16.15.
 
-## С чего начать
-1. Прочитай [онбординг](docs/onboarding.md) — это твой первый рабочий день.
-2. Изучи [бизнес-правила](docs/company-rules.md).
-3. Открой [бэклог](docs/backlog.md) — там твои задачи.
+Состав решения: [SQL-скрипты](db/schema/), [обоснования](db/constraints.md),
+[протокол проверки](db/tests.md), `db/foodexpress_konov.backup`.
+Условия задания сохранены в `docs/`.
 
-## Если ты никогда не работал с Git
-1. Посмотри [скринкаст](docs/git-screencast.md) (10 минут).
-2. Держи под рукой [шпаргалку](docs/git-cheatsheet.md).
+## Восстановление
 
-## Сдача работы
-Все требования к составу файлов, формату резервной копии и процессу сдачи описаны в файле [docs/acceptance.md](docs/acceptance.md).
+Целевая БД `foodexpress` должна быть пустой, с подготовленной схемой `exts`
+и расширением `uuid-ossp`. Под администратором:
 
-## Платформы
-Репозиторий зеркалируется на две платформы. Форкай ту, где тебе удобнее:
-- GitHub: [`<ссылка_на_github>`](https://github.com/NKhashchanov/total_designing_db_2026)
-- GitVerse: [`<ссылка_на_gitverse>`](https://gitverse.ru/nkhashchanov/total_designing_db_2026)
+```sh
+pg_restore -U postgres -d foodexpress --no-owner --no-acl --exit-on-error db/foodexpress_konov.backup
+psql -U postgres -d foodexpress -v ON_ERROR_STOP=1 -f db/schema/grants.sql
+```
+
+## Проверка
+
+Подключение — `psql -U inspector -d foodexpress`, пароль `NetoSQL2025`.
+
+```sql
+SET search_path TO konov_food, exts;
+CALL erase_test_data();
+CALL insert_test_data(10);
+SELECT * FROM get_statistic();
+CALL courier_salary();
+SELECT * FROM how_much_money ORDER BY year_month;
+```
